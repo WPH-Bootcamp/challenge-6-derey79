@@ -9,6 +9,10 @@
     "dev": "npm run build && npm start"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.9",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "inquirer": "^13.4.2"
   }
 }

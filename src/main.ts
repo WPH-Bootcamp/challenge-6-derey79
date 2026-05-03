@@ -1,3 +1,6 @@
+import { showMenu, mainMenu } from './functions/bookManager';
+import { mainmenuList } from './data/books';
+
 // File ini adalah entry point aplikasi
 // Gunakan file ini untuk menguji implementasi yang sudah dibuat
 // Contoh yang bisa dilakukan:
@@ -7,8 +10,10 @@
 //   4. Uji fungsi searchBook dengan dan tanpa parameter
 // Silakan bereksplorasi untuk memastikan semua fungsi berjalan dengan baik
 
-console.log("Book Management Application - Week 6");
-console.log("=====================================");
+console.log('Book Management Application - Week 6');
+console.log('=====================================');
 
 // Mulai pengujian di bawah ini
 
+showMenu(mainmenuList);
+mainMenu();
