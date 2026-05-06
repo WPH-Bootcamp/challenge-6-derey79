@@ -1,4 +1,4 @@
-import { Book, MenuItem } from '../types';
+import { MenuItem, Book } from '../types';
 
 // Tugas 2: Buat array untuk menyimpan koleksi buku
 // Array ini akan digunakan sebagai penyimpanan data sementara selama aplikasi berjalan
@@ -24,7 +24,7 @@ export const mainmenuList: MenuItem[] = [
     menuTitle: 'Search Book',
     isMandatory: true,
   },
-  // {
+  //{
   //   id: 4,
   //   menuTitle: 'Edit Book',
   //   isMandatory: false,
