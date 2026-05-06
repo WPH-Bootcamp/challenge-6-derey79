@@ -1,3 +1,4 @@
+export {};
 import { showMenu, mainMenu } from './functions/bookManager';
 import { mainmenuList } from './data/books';
 
