@@ -1,12 +1,6 @@
-import inquirer from 'inquirer';
-import {
-  MenuItem,
-  Book,
-  MenuAnswer,
-  ExitAnswer,
-  DataAnswers,
-} from '../types/index';
-import { books, mainmenuList } from '../data/books';
+import { MenuItem, Book } from '../types/index';
+import { books } from '../data/books';
+// import { keyword } from '../main';
 
 // Tugas 3: Implementasikan fungsi-fungsi manajemen buku
 
@@ -15,77 +9,52 @@ import { books, mainmenuList } from '../data/books';
 // Parameter yang dibutuhkan: data buku sesuai tipe Book
 // Fungsi ini tidak mengembalikan nilai (void)
 // Petunjuk: pikirkan bagaimana cara menambahkan buku ke array yang sudah disediakan
-async function addBook(): Promise<void> {
-  const answers = await inquirer.prompt<DataAnswers>([
-    {
-      type: 'input',
-      name: 'title',
-      message: 'Enter book title:',
-      validate: (input: string) => {
-        const title = input.trim();
-        if (!title) return 'Title cannot be empty';
+// Simple validation function
 
-        const bookExists = books.some(
-          (b) => b.title.toLowerCase() === title.toLowerCase()
-        );
+// Simple validation function
+async function isValid(book: Book): Promise<boolean> {
+  const currentYear = new Date().getFullYear();
+  const yearPublish = book.publicationYear ?? 0;
 
-        if (bookExists) {
-          return 'Title already exists!';
-        }
-        return true;
-      },
-    },
-    {
-      type: 'input',
-      name: 'author',
-      message: 'Enter author name:',
-    },
-    {
-      type: 'input',
-      name: 'publicationYear',
-      message: 'Enter publication year (yyyy):',
-      validate: (input: string) => {
-        // const year = Number(input);
-        if (!input.trim()) return 'Year cannot be empty';
-        // if (isNaN(year)) return 'Year must be a number';
-        if (Number(input) <= 0) return 'Year must be greater than 0';
-        if (input.trim().length !== 4) {
-          return 'Year must be exactly 4 digits';
-        }
-        return true;
-        // return !isNaN(year) || 'Year must be a number';
-      },
-    },
-  ]);
+  // 1. check apakah null atau tidak
+  if (!book.title.trim() || !book.author.trim()) return false;
 
-  const newBook: Book = {
-    // id: Date.now(),
-    title: answers.title.trim(),
-    author: answers.author.trim(),
-    publicationYear: Number(answers.publicationYear),
-  };
+  // 2. check validasi publicationYear
+  // if (book.publicationYear > currentYear || book.publicationYear <= 0)
+  //   return false;
+  if (
+    book.publicationYear !== undefined &&
+    (book.publicationYear > currentYear || book.publicationYear < 0)
+  )
+    return false;
 
-  books.push(newBook);
+  // 3. check untuk duplikasi
+  const exists = books.some(
+    (b) => b.title.trim().toLowerCase() === book.title.trim().toLowerCase()
+  );
+  if (exists) return false;
 
-  // console.log('New book added successfully :', newBook);
-  console.log('New book added successfully\n');
+  return true;
+}
 
-  // Prompt to insert again
+// Simple push function
+export async function addBooks(prBooks: Book[]) {
+  console.log('start inserting...');
 
-  const { confirmAgain } = await inquirer.prompt<{ confirmAgain: boolean }>([
-    {
-      type: 'confirm',
-      name: 'confirmAgain',
-      message: 'Add another book ?',
-      default: false,
-    },
-  ]);
+  for (const book of prBooks) {
+    // menghapus spasi sebelum data di push
+    book.title = book.title.trim();
+    book.author = book.author.trim();
 
-  //
-  if (confirmAgain) {
-    await addBook();
+    if (await isValid(book)) {
+      books.push(book);
+      console.log(`Title: ${book.title.padEnd(30)} (V)`);
+    } else {
+      console.log(`Title: ${book.title.padEnd(30)} (Failed)`);
+    }
   }
-  showMenu(mainmenuList);
+  console.log('end insert....');
+  // console.log(books);
 }
 
 // Fungsi listBooks
@@ -93,8 +62,10 @@ async function addBook(): Promise<void> {
 // Tidak memerlukan parameter
 // Fungsi ini tidak mengembalikan nilai (void)
 // Petunjuk: pikirkan cara menampilkan data buku dengan format yang mudah dibaca
-function listBooks(): void {
-  console.log('\n=============== List Books ===============');
+export function listBooks(): void {
+  console.log(
+    '\n======================= List of Books ======================='
+  );
 
   if (books.length === 0) {
     console.log('No books available.');
@@ -102,11 +73,17 @@ function listBooks(): void {
   }
 
   books.forEach((book, index) => {
+    // supaya tampilan no urut lebih rapih
+    let noOrder = String(index + 1).padStart(2, '0');
+    const publishLabel =
+      book.publicationYear !== undefined ? `(${book.publicationYear})` : '';
     console.log(
-      `[${index + 1}]. Title : ${book.title}, Author : ${book.author} (${book.publicationYear})`
+      `${noOrder}. Title : ${book.title.padEnd(28)} Author : ${book.author.padEnd(25)} ${publishLabel}`
     );
   });
-  console.log('==========================================\n');
+  console.log(
+    '=============================================================\n'
+  );
 }
 
 // Fungsi searchBook
@@ -115,42 +92,33 @@ function listBooks(): void {
 // Fungsi ini tidak mengembalikan nilai (void)
 // Petunjuk: jika parameter title diberikan, cari buku yang cocok
 //           jika tidak diberikan, tampilkan semua buku atau berikan informasi yang sesuai
-async function searchBook(): Promise<void> {
+export async function searchBook(keyword: string | number): Promise<void> {
   if (books.length === 0) {
-    console.log('📭 No books available.\n');
+    console.log('No books available.\n');
     return;
   }
+  //
+  console.log(`\nResult for keyword : ${keyword}`);
+  console.log('==================================');
+  const results = books.filter((b) => {
+    // 1. check kalau type Number, cari berdasarkan publicationYear
+    if (typeof keyword === 'number') {
+      return b.publicationYear === keyword;
+    }
 
-  // 1) ask keyword
-  const { keyword } = await inquirer.prompt<{ keyword: string }>([
-    {
-      type: 'input',
-      name: 'keyword',
-      message: 'input title/author/year :',
-    },
-  ]);
+    // 2. kalau type string, cari untuk title atau author
+    const lowerKeyword = keyword.toLowerCase();
+    return (
+      b.title.toLowerCase().includes(lowerKeyword) ||
+      b.author.toLowerCase().includes(lowerKeyword)
+    );
+  });
 
-  const q = keyword.trim().toLowerCase();
-
-  // 2) filter (title OR author OR year)
-  const results = books.filter(
-    (b) =>
-      b.title.toLowerCase().includes(q) ||
-      b.author.toLowerCase().includes(q) ||
-      b.publicationYear.toString().includes(q)
-  );
-
-  // show results
-  if (results.length === 0) {
-    console.log('No books found.\n');
-    return;
-  }
-
-  console.log('\n Search Results:');
   results.forEach((book, index) => {
     // console.log(`${i + 1}. ${b.title} - ${b.author} (${b.publicationYear})`);
+    let resIndex = String(index + 1).padStart(2, '0');
     console.log(
-      `${index + 1}. Title : ${book.title}, Author : ${book.author} (${book.publicationYear})`
+      `${resIndex}. Title : ${book.title.padEnd(28)} Author : ${book.author.padEnd(25)} (${book.publicationYear})`
     );
   });
   console.log();
@@ -158,59 +126,9 @@ async function searchBook(): Promise<void> {
 
 // Function: Render Menu
 export function showMenu(menu: MenuItem[]): void {
-  console.log('\n============ OPTION MENU ============');
+  console.log('\n=====================================');
   menu.forEach((item) => {
-    const status = item.isMandatory ? '' : '(new feature)';
-    console.log(`  [${item.id}]. ${item.menuTitle.padEnd(22)} ${status}`);
+    console.log(` Step [${item.id}]. ${item.menuTitle.padEnd(22)}`);
   });
   console.log('=====================================\n');
-}
-
-export async function mainMenu() {
-  let exit = false;
-
-  while (!exit) {
-    const { menu } = await inquirer.prompt<MenuAnswer>([
-      {
-        type: 'input',
-        name: 'menu',
-        message: 'Insert Your choice? (1-4)',
-      },
-    ]);
-
-    switch (menu) {
-      case '1':
-        // console.log('\nInsert Book :');
-        await addBook();
-        break;
-
-      case '2':
-        listBooks();
-        // your search logic
-        break;
-
-      case '3':
-        await searchBook();
-        // your search logic
-        break;
-
-      case '4':
-        const { confirmExit } = await inquirer.prompt<ExitAnswer>([
-          {
-            type: 'input',
-            name: 'confirmExit',
-            message: 'Are you sure you want to exit? (y/n)',
-          },
-        ]);
-
-        if (confirmExit.toLowerCase() === 'y') {
-          console.log('Exiting...');
-          exit = true;
-        }
-        break;
-
-      default:
-        console.log('Invalid choice');
-    }
-  }
 }
