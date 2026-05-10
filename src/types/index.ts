@@ -7,30 +7,11 @@
 export interface Book {
   title: string;
   author: string;
-  publicationYear: number;
+  publicationYear?: number;
 }
 
 // Interface --> Main Menu
 export interface MenuItem {
   id: number;
   menuTitle: string;
-  isMandatory: boolean;
-}
-
-type MenuChoice = '1' | '2' | '3' | '4';
-
-export interface MenuAnswer {
-  menu: MenuChoice;
-}
-
-type YesNo = 'y' | 'n';
-
-export interface ExitAnswer {
-  confirmExit: YesNo;
-}
-
-export interface DataAnswers {
-  title: string;
-  author: string;
-  publicationYear: string;
 }
