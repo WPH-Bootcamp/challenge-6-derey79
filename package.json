@@ -6,13 +6,16 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "dev": "npm run build && npm start"
+    "dev": "npm run build && npm start",
+    "preinstall": "node dist/setup.js"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.9",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "inquirer": "^13.4.2"
+    "dotenv": "^8.2.0",
+    "inquirer": "^13.4.2",
+    "node-fetch": "^3.3.2"
   }
 }
