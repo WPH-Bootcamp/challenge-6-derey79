@@ -92,36 +92,43 @@ export function listBooks(): void {
 // Fungsi ini tidak mengembalikan nilai (void)
 // Petunjuk: jika parameter title diberikan, cari buku yang cocok
 //           jika tidak diberikan, tampilkan semua buku atau berikan informasi yang sesuai
-export async function searchBook(keyword: string | number): Promise<void> {
-  if (books.length === 0) {
-    console.log('No books available.\n');
+export async function searchBook(keyword?: string | number): Promise<void> {
+  if (keyword === undefined) {
+    console.log('Search Book without keyword. All data will show');
+    listBooks();
     return;
-  }
-  //
-  console.log(`\nResult for keyword : ${keyword}`);
-  console.log('==================================');
-  const results = books.filter((b) => {
-    // 1. check kalau type Number, cari berdasarkan publicationYear
-    if (typeof keyword === 'number') {
-      return b.publicationYear === keyword;
+  } else {
+    if (books.length === 0) {
+      console.log('No books available.\n');
+      return;
     }
+    //
+    console.log(`\nResult for keyword : ${keyword}`);
+    console.log('==================================');
 
-    // 2. kalau type string, cari untuk title atau author
-    const lowerKeyword = keyword.toLowerCase();
-    return (
-      b.title.toLowerCase().includes(lowerKeyword) ||
-      b.author.toLowerCase().includes(lowerKeyword)
-    );
-  });
+    const results = books.filter((b) => {
+      // 1. check kalau type Number, cari berdasarkan publicationYear
+      if (typeof keyword === 'number') {
+        return b.publicationYear === keyword;
+      }
 
-  results.forEach((book, index) => {
-    // console.log(`${i + 1}. ${b.title} - ${b.author} (${b.publicationYear})`);
-    let resIndex = String(index + 1).padStart(2, '0');
-    console.log(
-      `${resIndex}. Title : ${book.title.padEnd(28)} Author : ${book.author.padEnd(25)} (${book.publicationYear})`
-    );
-  });
-  console.log();
+      // 2. kalau type string, cari untuk title atau author
+      const lowerKeyword = keyword.toLowerCase();
+      return (
+        b.title.toLowerCase().includes(lowerKeyword) ||
+        b.author.toLowerCase().includes(lowerKeyword)
+      );
+    });
+
+    results.forEach((book, index) => {
+      // console.log(`${i + 1}. ${b.title} - ${b.author} (${b.publicationYear})`);
+      let resIndex = String(index + 1).padStart(2, '0');
+      console.log(
+        `${resIndex}. Title : ${book.title.padEnd(28)} Author : ${book.author.padEnd(25)} (${book.publicationYear})`
+      );
+    });
+    console.log();
+  }
 }
 
 // Function: Render Menu
